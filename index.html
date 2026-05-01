@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Multiplication Quiz</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #d6f0ff;
+  text-align: center;
+}
+
+.quiz-box {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  width: 65%;
+  margin: auto;
+  margin-top: 50px;
+}
+
+button {
+  background: #fff5b1;
+  border: none;
+  padding: 12px;
+  margin: 8px;
+  width: 85%;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.correct { background: lightgreen; }
+.wrong { background: #ffb3b3; }
+
+#result {
+  display: none;
+  font-size: 24px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="quiz-box">
+<h2>✖️ Multiplication Quiz (3-digit × 2-digit)</h2>
+<p id="question"></p>
+<div id="options"></div>
+</div>
+
+<div id="result"></div>
+
+<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+<audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg"></audio>
+
+<script>
+
+let questions = [
+{q:"123 × 12 = ?",a:1476},
+{q:"245 × 14 = ?",a:3430},
+{q:"312 × 11 = ?",a:3432},
+{q:"456 × 13 = ?",a:5928},
+{q:"678 × 12 = ?",a:8136},
+{q:"789 × 14 = ?",a:11046},
+{q:"234 × 15 = ?",a:3510},
+{q:"567 × 11 = ?",a:6237},
+{q:"345 × 12 = ?",a:4140},
+{q:"912 × 13 = ?",a:11856},
+
+{q:"678 × 15 = ?",a:10170},
+{q:"432 × 14 = ?",a:6048},
+{q:"876 × 12 = ?",a:10512},
+{q:"543 × 13 = ?",a:7059},
+{q:"321 × 11 = ?",a:3531},
+{q:"654 × 12 = ?",a:7848},
+{q:"789 × 11 = ?",a:8679},
+{q:"567 × 14 = ?",a:7938},
+{q:"345 × 15 = ?",a:5175},
+{q:"234 × 13 = ?",a:3042}
+];
+
+let current = 0;
+let score = 0;
+
+function generateOptions(correct){
+  let options = new Set();
+  options.add(correct);
+
+  while(options.size < 4){
+    let rand = correct + Math.floor(Math.random()*500 - 250);
+    if(rand > 0) options.add(rand);
+  }
+
+  return [...options].sort(()=>Math.random()-0.5);
+}
+
+function loadQuestion(){
+  if(current >= questions.length){
+    showResult();
+    return;
+  }
+
+  let q = questions[current];
+  document.getElementById("question").innerText =
+    (current+1) + ". " + q.q;
+
+  let opts = generateOptions(q.a);
+
+  let html = "";
+  opts.forEach(opt=>{
+    html += `<button onclick="checkAnswer(this,${q.a})">${opt}</button>`;
+  });
+
+  document.getElementById("options").innerHTML = html;
+}
+
+function checkAnswer(btn, correct){
+  let buttons = document.querySelectorAll("button");
+  buttons.forEach(b=>b.disabled=true);
+
+  if(Number(btn.innerText) === correct){
+    btn.classList.add("correct");
+    document.getElementById("correctSound").play();
+    score++;
+  } else {
+    btn.classList.add("wrong");
+    document.getElementById("wrongSound").play();
+  }
+
+  setTimeout(()=>{
+    current++;
+    loadQuestion();
+  },1200);
+}
+
+function showResult(){
+  document.querySelector(".quiz-box").style.display="none";
+  let res = document.getElementById("result");
+  res.style.display="block";
+
+  let msg = score>=16 ? "🌟 Excellent!" :
+            score>=10 ? "👏 Great Job!" :
+            score>=5 ? "👍 Good!" :
+            "💪 Keep Practicing!";
+
+  res.innerHTML = `
+  ${msg} <br><br>
+  Your Score: <b>${score} / ${questions.length}</b>
+  `;
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
